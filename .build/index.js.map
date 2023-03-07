@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../index.ts"],
+  "sourcesContent": ["import gemini, {\n  Request,\n  Response,\n  NextFunction\n} from \"gemini-server\";\nimport fs from \"fs\";\n\nfunction main() {\n  const cert = fs.readFileSync(\"cert.pem\");\n  const key = fs.readFileSync(\"key.pem\");\n  const app = gemini({ cert, key });\n  app.use((\n    req: Request,\n    _res: Response,\n    next: NextFunction\n  ) => {\n    console.log(`Handling request ${req.path}`);\n    next();\n  });\n\n  app.on(\"/\", (_req: Request, res: Response) => {\n    console.log(\"Index page requested\");\n    res.file(\"index.gmi\");\n  });\n\n  return app;\n}\n\nmain().listen(() => console.log(\"~> Listening <~\"));\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;AAAA,2BAIO;AACP,gBAAe;AAEf,SAAS,OAAO;AACd,QAAM,OAAO,UAAAA,QAAG,aAAa,UAAU;AACvC,QAAM,MAAM,UAAAA,QAAG,aAAa,SAAS;AACrC,QAAM,UAAM,qBAAAC,SAAO,EAAE,MAAM,IAAI,CAAC;AAChC,MAAI,IAAI,CACN,KACA,MACA,SACG;AACH,YAAQ,IAAI,oBAAoB,IAAI,MAAM;AAC1C,SAAK;AAAA,EACP,CAAC;AAED,MAAI,GAAG,KAAK,CAAC,MAAe,QAAkB;AAC5C,YAAQ,IAAI,sBAAsB;AAClC,QAAI,KAAK,WAAW;AAAA,EACtB,CAAC;AAED,SAAO;AACT;AAEA,KAAK,EAAE,OAAO,MAAM,QAAQ,IAAI,iBAAiB,CAAC;",
+  "names": ["fs", "gemini"]
+}
