@@ -19,19 +19,33 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var import_gemini_server = __toESM(require("gemini-server"));
 var import_fs = __toESM(require("fs"));
-function main() {
-  const cert = import_fs.default.readFileSync("cert.pem");
-  const key = import_fs.default.readFileSync("key.pem");
-  const app = (0, import_gemini_server.default)({ cert, key });
-  app.use((req, _res, next) => {
+var import_HttpMirror = __toESM(require("./HttpMirror"));
+function createGeminiServer(geminiStaticDir = "/home/runner/hackersphere/gemini-static", certFile = "cert.pem", keyFile = "key.pem") {
+  const cert = import_fs.default.readFileSync(certFile);
+  const key = import_fs.default.readFileSync(keyFile);
+  const geminiServer = (0, import_gemini_server.default)({ cert, key });
+  geminiServer.use((req, _res, next) => {
     console.log(`Handling request ${req.path}`);
     next();
   });
-  app.on("/", (_req, res) => {
-    console.log("Index page requested");
-    res.file("index.gmi");
+  geminiServer.on("*", (req, res) => {
+    console.log("Request: " + req.url);
+    const path = `${geminiStaticDir}${req.url}`;
+    const requestedData = import_fs.default.readFileSync(path, "utf-8");
+    res.data(requestedData, "text/gemini");
   });
-  return app;
+  return {
+    gemini: () => {
+      console.log("Starting Gemini server");
+      return geminiServer;
+    }
+  };
 }
-main().listen(() => console.log("~> Listening <~"));
+function main() {
+  const gmi = createGeminiServer();
+  const mirror = (0, import_HttpMirror.default)();
+  gmi.gemini().listen(443);
+  mirror.http().listen(80);
+}
+main();
 //# sourceMappingURL=index.js.map

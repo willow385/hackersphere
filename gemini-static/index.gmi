@@ -1,0 +1,10 @@
+# Hello, world!
+## Welcome to Willow's Gemini capsule (in progress)!
+
+If you are viewing this page in a web browser with HTTPS, you're actually viewing a mirror of the capsule, which automatically converts a GMI file to HTML on-demand. To see this page in Gemini (soon), visit this URL instead:
+=> gemini://hackersphere.wcatgir1.repl.co:443/index.gmi
+here's a list
+* foo
+* bar
+* baz
+weee!
