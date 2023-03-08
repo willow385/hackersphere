@@ -20,3 +20,9 @@ You can also view this capsule in a web browser via the HTTPS mirror that I wrot
 Here's some links to other capsules that I like reading:
 
 => gemini://gemini.circumlunar.space/capcom/ A gemlog aggregator
+=> gemini://geminiquickst.art/
+=> gemini://sdf.org/
+=> gemini://gemini.conman.org/
+=> gemini://mozz.us/
+=> gemini://zaibatsu.circumlunar.space/
+=> gemini://heavysquare.com/

@@ -131,10 +131,14 @@ function convertGmiToHtml(
       listMode = false;
     }
     if (line.startsWith("=> ")) {
-      const [ _, uri, label ] = line.split(' ');
+      const linkParts = line.split(' ');
       try {
+        const uri = linkParts[1];
+        const labelParts = linkParts.slice(2);
+        const label = labelParts.length > 0 ? labelParts.join(" ") : uri;
         console.log("Rewriting link as HTML anchor tag: " + uri);
-        result += `<a href="${uri}">${escape(label ?? uri)}</a>\n`;
+        console.log("with label: " + label);
+        result += `<a href="${uri}">${escape(label)}</a><br>\n`;
       } catch {
         return {
           error: 1,
