@@ -1,4 +1,9 @@
 {
+  "main": "main.js",
+  "scripts": {
+    "compile": "tsc",
+    "server": "node dist/main.js"
+  },
   "dependencies": {
     "gemini-server": "^2.1.0",
     "fs": "^0.0.1-security",

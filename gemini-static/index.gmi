@@ -1,10 +1,22 @@
-# Hello, world!
-## Welcome to Willow's Gemini capsule (in progress)!
+# You are now entering the Hackersphere
 
-If you are viewing this page in a web browser with HTTPS, you're actually viewing a mirror of the capsule, which automatically converts a GMI file to HTML on-demand. To see this page in Gemini (soon), visit this URL instead:
-=> gemini://hackersphere.wcatgir1.repl.co:443/index.gmi
-here's a list
-* foo
-* bar
-* baz
-weee!
+```ASCII art of a Gosper glider from Conway's Game of Life
+    ▉▉▉▉
+    ▉▉▉▉
+        ▉▉▉▉
+        ▉▉▉▉
+▉▉▉▉▉▉▉▉▉▉▉▉
+▉▉▉▉▉▉▉▉▉▉▉▉
+```
+
+## A capsule made by willowf
+
+I'm willowf, and I built this server because I wanted to have a Gemini capsule of my own.
+
+You can also view this capsule in a web browser via the HTTPS mirror that I wrote:
+
+=> https://hackersphere.space/
+
+Here's some links to other capsules that I like reading:
+
+=> gemini://gemini.circumlunar.space/capcom/ A gemlog aggregator
