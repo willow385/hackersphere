@@ -1,0 +1,13 @@
+[Unit]
+Description=The Hackersphere server
+After=network.target
+
+[Service]
+Type=simple
+User=willowf
+WorkingDirectory=/home/willowf/hackersphere
+ExecStart=/usr/bin/npm run server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+{
+  "staticFilesDirectory": "/home/willowf/hackersphere/gemini-static",
+  "tlsCertDirectory": "/etc/letsencrypt/live/hackersphere.space",
+  "certFile": "fullchain.pem",
+  "keyFile": "privkey.pem",
+  "baseUri": "hackersphere.space",
+  "forbiddenPageMessage": "You are not allowed to view the page @@PAGE-URI@@."
+}

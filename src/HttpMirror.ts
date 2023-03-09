@@ -1,74 +1,80 @@
 import fs from "fs";
 import https from "https";
-import http, { IncomingMessage, ServerResponse } from "http";
-import { GlobalConstants } from "./GlobalConstants";
-import TlsCertKeyPair from "./TlsCertificates";
+import { IncomingMessage, ServerResponse } from "http";
+import { loadTlsDetails } from "./TlsCertificates";
+import { ServerConfiguration } from "./ServerCfg";
+import applyTemplateSubstitution, { loadGmi } from "./TemplateProcessor";
 
 interface GmiError {
   error: 1,
   reason: "malformed GMI text" | "no such file or directory",
   /** The file that the client asked for */
-  requestedResource: string,
-  /** The gmi file that we tried to find */
-  requestedGmi: string
+  requestedResource: string
 };
 
 interface HtmlText {
   error: 0,
   htmlText: string,
-  requestedResource: string,
-  requestedGmi: string
+  requestedResource: string
 };
 
-export default function geminiHttpMirror(
-  tlsDetails: TlsCertKeyPair,
-  geminiStaticDir: string = GlobalConstants.StaticDirectory
+export default async function geminiHttpMirror(
+  cfg: ServerConfiguration,
+  /**
+   * This should return a string that uniquely identifies each request, for logging.
+   * Successive calls should always return unique values.
+   */
+  generateRequestId: () => string
 ) {
-  const httpServer = https.createServer(tlsDetails, (req: IncomingMessage, res: ServerResponse) => {
-    console.log(":: Handling HTTPS request ::");
-    const resource = req.url!.endsWith("/") ? "/index.html" : `${req.url}`;
-    if (resource.includes("..")) {
-      res.writeHead(403);
-      res.end("403: Tf you trying to look in a parent directory for?");
-    } else if (!resource.endsWith(".html")) {
-      res.writeHead(404);
-      res.end("404: HTTPS requests must end with .html");
+  const tlsDetails = await loadTlsDetails(cfg.tlsCertDirectory, cfg.certFile, cfg.keyFile);
+  async function handleRequest(req: IncomingMessage, res: ServerResponse) {
+    const requestId = generateRequestId();
+    console.log(`~ Handling https request ${requestId} ~`);
+    console.log(`${requestId}: requested url: ${req.url}`);
+    const resource = (req?.url === "/" ? "/index.gmi" : req.url) ?? "/index.gmi";
+    if (resource.includes("..") || !resource.endsWith(".gmi")) {
+      const message = applyTemplateSubstitution(`403: ${cfg.forbiddenPageMessage ?? "Forbidden"}`, {
+        "@@PAGE-URI@@": resource
+      });
+      if (message.error) {
+        res.writeHead(500);
+        res.end(`${cfg.serverErrorMessage ?? "500 Internal server error"}: ${message.reason}`);
+      } else {
+        res.writeHead(403);
+        res.end(message.text);
+      }
     } else {
-      const gmiResource = `${geminiStaticDir}${resource}`
-        .replaceAll(".html", ".gmi");
-      fs.readFile(
-        gmiResource,
-        (err: NodeJS.ErrnoException | null, data: Buffer) => {
-          console.log(`Requested: ${resource}`);
-          if (err) {
-            res.writeHead(404);
-            res.end("404: File not found");
-          } else {
-            console.log(`Read: ${gmiResource}`);
-            const conversionResult = convertGmiToHtml(
-              data!.toString("utf-8"), resource, gmiResource
-            );
-            if (conversionResult.error) {
-              console.log("Error: " + JSON.stringify(
-                conversionResult, null, 2
-              ));
-              res.writeHead(500);
-              res.end(`500: ${conversionResult.reason}`);
-            } else {
-              console.log(`:: Request succeeded at ${new Date()} ::`);
-              res.writeHead(200);
-              res.end(conversionResult.htmlText);
-            }
-          }
+      const substitutionResult = await loadGmi(
+        cfg.staticFilesDirectory, resource
+      ).withSubstitutionRuleFile("substitution-rule.json");
+      if (substitutionResult.error) {
+        res.writeHead(500);
+        res.end(
+          `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${substitutionResult.reason}`
+        );
+      } else {
+        const html = convertGmiToHtml(substitutionResult.text, resource, cfg);
+        if (html.error) {
+          res.writeHead(500);
+          res.end(
+            `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${html.reason}`
+          );
+        } else {
+          res.writeHead(200);
+          res.end(html.htmlText);
         }
-      ); 
+      }
     }
-  });
+    console.log(`~ Completed gemini request ${requestId} ~`);
+  }
+
+  const httpsServer = https.createServer(tlsDetails, handleRequest);
+
   return {
-    http: (uri: string) => ({
+    https: (uri: string) => ({
       listen: (port: number) => {
-        console.log(`Starting HTTP server on https://${uri}:${port}`)
-        return httpServer.listen(port, "0.0.0.0");
+        console.log(`Starting HTTPS server on https://${uri}:${port}`)
+        return httpsServer.listen(port, "0.0.0.0");
       }
     })
   };
@@ -77,9 +83,9 @@ export default function geminiHttpMirror(
 function convertGmiToHtml(
   gmiFileContents: string,
   requestedResource: string,
-  requestedGmi: string
+  cfg: ServerConfiguration
 ): HtmlText | GmiError {
-  console.log(`Processing GMI file: ${requestedResource} => ${requestedGmi}`);
+  console.log(`Processing GMI file: ${requestedResource}`);
   const lines = gmiFileContents.split("\n");
   const escape = (s: string) =>
     s.replaceAll("&", "&amp;")
@@ -91,7 +97,7 @@ function convertGmiToHtml(
   const mirrorNotice = fs.readFileSync(mirrorNoticePath, "utf-8")
     .replaceAll(
       "@@REQUESTED_URL@@",
-      `${GlobalConstants.BaseUri}${requestedResource.replaceAll(".html", ".gmi")}`
+      `${cfg.baseUri}${requestedResource}`
     );
   let result = `<!DOCTYPE html>
   <html lang="en">
@@ -143,7 +149,7 @@ function convertGmiToHtml(
         return {
           error: 1,
           reason: "malformed GMI text",
-          requestedResource, requestedGmi
+          requestedResource
         };
       }
     } else if (line.startsWith("* ")) {
@@ -168,14 +174,14 @@ function convertGmiToHtml(
     return {
       error: 1,
       reason: "malformed GMI text",
-      requestedResource, requestedGmi
+      requestedResource
     };
   } else {
     result += "</body>\n</html>\n";
     return {
       error: 0,
       htmlText: result,
-      requestedResource, requestedGmi
+      requestedResource
     };
   }
 }

@@ -1,12 +1,10 @@
 # You are now entering the Hackersphere
 
 ```ASCII art of a Gosper glider from Conway's Game of Life
-    ▉▉▉▉
-    ▉▉▉▉
-        ▉▉▉▉
-        ▉▉▉▉
-▉▉▉▉▉▉▉▉▉▉▉▉
-▉▉▉▉▉▉▉▉▉▉▉▉
+  ┌─┐
+  └─┼─┐
+┌─┬─┼─┤
+└─┴─┴─┘
 ```
 
 ## A capsule made by willowf
@@ -26,3 +24,6 @@ Here's some links to other capsules that I like reading:
 => gemini://mozz.us/
 => gemini://zaibatsu.circumlunar.space/
 => gemini://heavysquare.com/
+
+Check out our readme:
+=> /README.gmi
