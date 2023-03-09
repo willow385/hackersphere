@@ -8,14 +8,13 @@
 ```
 
 ## Executing silly protocol... Initializing fun subroutines... Disencrypting the good time matrix
-Welcome to our Gemini capsule! We hope you'll have a nice time, and stay silly :3
+Welcome to our Gemini capsule! We hope you'll have a nice time
 
 You can also view this capsule on the Web via our live HTTPS mirror:
-
 => https://hackersphere.space/
 
 ## In the Hackersphere, nobody knows that I am cringe
-Some of us in the Hackersphere are known to uwu, nyaa~, and sometimes even :3. We are not accepting criticism for these tendencies at this or any future time. Individuals and plural systems of all genders and sexualities are respected on this capsule.
+Some of us in the Hackersphere are known to uwu, nyaa~, and sometimes even xD. We are not accepting criticism for these tendencies at this or any future time. We have a capsulewide policy that individuals and plural systems of all genders, sexualities, and marginalized identities shall be respected here. You shall not post bigoted or harmful content here, and you must always stay silly :3 
 
 ## but what other capsules are out there? like, what is there to do?
 Here's some links to other capsules for newcomers to break into Gemspace:
@@ -29,7 +28,7 @@ Here's some links to other capsules for newcomers to break into Gemspace:
 => gemini://heavysquare.com/ There's some posts on here about Unix and other techy stuff
 
 ## I want to know more about the software that runs this capsule
-Check out our readme (there's not much there right now):
+Check out our readme:
 => /README.gmi
 
 ## Where can I see people's content on here?
@@ -37,5 +36,5 @@ View the subcapsules of our users:
 => /~willowf/home.gmi
 => /~offbeatspecter/yo-is-this-thing-on.gmi
 
-## I want my own capsule on hackersphere.space
-=> /~willowf/home.gmi The admin's contact details can be obtained through here
+## I want my own subcapsule on hackersphere.space!
+=> /~willowf/contact.gmi The admin's contact details can be obtained through here

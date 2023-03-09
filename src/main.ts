@@ -4,7 +4,7 @@ import { loadTlsDetails } from "./TlsCertificates";
 import { loadServerConfiguration, ServerConfiguration } from "./ServerCfg";
 
 async function main() {
-  const serverCfg = await loadServerConfiguration("/home/willowf/hackersphere/cfg/server.json");
+  const serverCfg = await loadServerConfiguration("cfg/server.json");
   let requestIndex: number = 0;
   const startupUnixTimestamp: number = Math.floor(Date.now() / 1000);
   const gmi = await createGeminiServer(serverCfg, () => {

@@ -1,1 +1,108 @@
-TODO write readme
+=> / Return to home page
+
+You are viewing the official README for the Hackersphere Capsule Engine, or HCE for short. This file contains documentation you'll need if you want to use the HCE to make your own Gemini capsule.
+
+# How do I install the Hackersphere Capsule Engine?
+## Requirements
+### System requirements
+The HCE was written on GNU/Linux for a virtual machine that has 1 x86-64 CPU core, 2GB RAM, and 25GB SSD. Honestly, you could probably get away with less than that. The same installation procedures can be followed for any Unix-like OS that uses systemd.
+
+### Software requirements
+There aren't many. Basically, you just need to be able to run npm and NodeJS. The package.json file doesn't have many dependencies in it and can be read on the Web here:
+=> https://github.com/DanteFalzone0/hackersphere/blob/main/package.json
+You'll also need systemd to run the server as a daemon using the hackersphere.service file I wrote.
+
+### Networking requirements
+The user under which the server daemon runs will need permission to access any ports you want to use, i.e. port 443 for HTTPS and 1965 for Gemini. You'll also need an SSL certkey pair for TLS.
+
+## Installation instructions
+### Get the git repository
+Clone this repository:
+=> https://github.com/DanteFalzone0/hackersphere.git
+### Install dependencies
+Navigate to the repository's root directory and do `npm install`.
+### Edit configuration file
+The file cfg/server.json contains server configuration info. You'll likely want to change these values:
+* staticFilesDirectory - Set this to the path to the directory you want to serve static files from.
+* tlsCertDirectory - Set this to the path to the directory where your SSL certkey pair is kept.
+* certFile - Set this to the name of the file containing the SSL certificate chain.
+* keyFile - Set this to the name of the file containing the SSL private key.
+* baseUri - Set this to your domain name.
+There are also some optional parameters, which have default values if not specified:
+* httpsPort - Port to serve HTTPS requests under; defaults to 443.
+* geminiPort - Port to serve Gemini requests under; defaults to 1965.
+* forbiddenPageMessage - Message sent to client when an HTTPS request returns with a 403 status; defaults to "403: Forbidden".
+* serverErrorMessage - Message sent to client when an internal server error occurs; defaults to "500 Internal Server Error" for HTTPS requests and "Internal Server Error" for Gemini requests.
+### Edit index page
+The file gemini-static/index.gmi is the capsule's index page (unless staticFilesDirectory in cfg/server.json doesn't point to gemini-static/). Edit it to be about your capsule instead of ours.
+### Compile the capsule engine
+Navigate to the git repository and do `npm run compile`. Note: if you want to change the configuration in cfg/server.json, it is NOT necessary to recompile the program, but it IS necessary to restart it. If it's running as a daemon under systemd you can do this with `sudo systemctl restart hackersphere`.
+### Set up server daemon
+Copy the file hackersphere.service into /etc/systemd/system or wherever your service unit files are kept. Edit the `User` parameter to the user under which you want the server to run (ideally not root) and edit the `WorkingDirectory` parameter to the path to the git repository. Save and exit, then do `sudo systemctl enable hackersphere` and `sudo systemctl start hackersphere` to start running the server.
+
+# How can users get their own subcapsule on my capsule?
+## User accounts
+The HCE is designed with the expectation that users will login to the host via SSH, and add content to their subcapsules by creating and editing gemtext files in their personal subdirectories of gemini-static. However, the HCE does not have any built-in functionality relating to user accounts as such. The idea is that the system of users and groups built-in to Unix should be perfectly adequate for the engine's envisioned use case. I would suggest that you only create users for people you trust, and that you use user and group permissions to prevent users from accidentally or intentionally messing with other users' files.
+
+That said, the HCE is agnostic to any concept of a "user account", so you are free to use any system you want for that. If you're the only user, you can just put anything you want in the static files directory. You could also extend the system to implement your own user management scheme; it's not mandatory that your users should have their own Unix user account, nor that content be updated by logging in with SSH. The HCE doesn't care, it just serves whatever files are in the static files directory.
+
+## Substitution Rule Files
+### Synopsis
+A substitution rule is a JSON file named `subrule.json`, containing information used by the HCE's template processor. A substitution rule is applied to the directory in which it resides, but not to any subdirectories thereof. If no substitution rule is present in a given directory, then no template processing will be done to the files in that directory. A substitution rule does not modify any files; it only affects the content served to the client.
+
+### Syntax
+A substitution rule's syntax is as follows:
+```Example substitution rule
+{
+  "@@EXAMPLE@@": "text to replace the template variable EXAMPLE with",
+  "@@ANOTHER-EXAMPLE@@": "text to replace the template variable ANOTHER-EXAMPLE with"
+}
+```
+A template variable must have the following syntax:
+* It must start with @@
+* It must end with @@
+* Between the two @@ delimeters, it must contain one or more dashes and/or uppercase English letters
+
+### Usage
+When a substitution rule is applied to some content, the template processor will replace all instances of template variables in the text with the expansions defined in the rule, and serve the result to the client. For example, if an HCE capsule at the domain "foo.example" has a subdirectory of its static files directory called "example", which contains the following in subrule.json:
+```subrule.json
+{
+  "@@FAVORITE-COLOR@@": "red"
+}
+```
+and the following in page.gmi:
+```page.gmi
+My favorite color is @@FAVORITE-COLOR@@, but I like other colors too :)
+```
+then the URI gemini://foo.example/example/page.gmi will return the following content:
+```page.gmi, as sent to the client after template processing
+My favorite color is red, but I like other colors too :)
+```
+
+# How does the Hackersphere Capsule Engine work?
+## High-level overview
+The HCE is a Node application written in Typescript. It serves static files from a directory specified in cfg/server.json. When a client sends a Gemini request, it will do these things:
+* If the requested URI path is /, it will return index.gmi from the root of the static files directory.
+* Otherwise, it will first check to see if the requested file exists, returning an error response if it does not.
+* It will asynchronously load the file's contents into memory, and it will check to see if that file's directory contains a subrule.json file.
+* If subrule.json exists, the requested file's contents will be run through the template processor with the substitution rule, and the result will be returned to the client. If subrule.json does not exist then the requested file's contents will be returned directly without being processed.
+When a client makes an HTTPS request, the HCE will do the same thing, except that the content will be converted to HTML after template processing.
+
+The HCE is programmed to shut down gracefully when it receives SIGTERM, SIGINT, or SIGQUIT. One nice consequence of this is that it's safe to stop the server with Ctrl+C when running it in an interactive shell.
+
+## File overview
+### src/
+* main.ts - The entry point for the HCE.
+* ServerCfg.ts - Loads cfg/server.json and exports an interface for its contents.
+* TlsCertificates.ts - Loads the SSL certificate and key from the files containing them.
+* GeminiServer.ts - Initializes listener to serve Gemini requests.
+* HttpMirror.ts - Initializes listener to serve HTTPS requests and converts gemtext to HTML.
+* TemplateProcessor.ts - Loads substitution rules and applies them to requested content.
+* mirror-notice.html - Inserted at the top of all HTML content returned by the HTTPS mirror.
+
+### cfg/
+* server.json - Configuration file for the HCE.
+
+### gemini-static/
+* index.gmi - The capsule's idex file.
+* README.gmi - This file.
