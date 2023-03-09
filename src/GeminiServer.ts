@@ -27,7 +27,6 @@ export default async function createGeminiServer(
     requestId = generateRequestId();
     console.log(`~ Handling gemini request ${requestId} ~`);
     next();
-    console.log(`~ Completed gemini request ${requestId} ~`);
   });
 
   geminiServer.on("*", async (req: Request, res: Response) => {
@@ -48,6 +47,7 @@ export default async function createGeminiServer(
         log(`File ${req.path} successfully served`);
       }
     }
+    console.log(`~ Completed gemini request ${requestId} ~`);
   });
 
   return {
