@@ -4,5 +4,6 @@
   "certFile": "fullchain.pem",
   "keyFile": "privkey.pem",
   "baseUri": "hackersphere.space",
-  "forbiddenPageMessage": "You are not allowed to view the page @@PAGE-URI@@."
+  "forbiddenPageMessage": "You are not allowed to view the page @@PAGE-URI@@.",
+  "serverErrorMessage": "Something got fucked up server-side. Error message: "
 }

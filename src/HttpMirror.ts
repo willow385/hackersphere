@@ -46,7 +46,7 @@ export default async function geminiHttpMirror(
     } else {
       const substitutionResult = await loadGmi(
         cfg.staticFilesDirectory, resource
-      ).withSubstitutionRuleFile("substitution-rule.json");
+      ).withSubstitutionRuleFile("subrule.json");
       if (substitutionResult.error) {
         res.writeHead(500);
         res.end(
@@ -103,7 +103,11 @@ function convertGmiToHtml(
   <html lang="en">
   <head>
   <meta charset="utf-8">
-  <title>${escape(`~/${requestedResource}`.replaceAll("//", "/"))}</title>
+  <title>${escape(`${
+    requestedResource.startsWith("/~") ?
+      requestedResource.slice(1)
+      : `~${requestedResource}`
+  }`)}</title>
   <style>
     body {
       font-family: monospace;

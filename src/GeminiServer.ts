@@ -4,6 +4,7 @@ import gemini, {
   NextFunction
 } from "gemini-server";
 import { ServerConfiguration } from "./ServerCfg";
+import { loadGmi, TemplateProcessingResult } from "./TemplateProcessor";
 import { loadTlsDetails } from "./TlsCertificates";
 
 
@@ -29,16 +30,25 @@ export default async function createGeminiServer(
     console.log(`~ Completed gemini request ${requestId} ~`);
   });
 
-  geminiServer.use("/", (req: Request, res: Response, next: NextFunction) => {
+  geminiServer.on("*", async (req: Request, res: Response) => {
     log(`Requested resource: ${req.path}`);
     if (["", "/", null].includes(req.path)) {
       log("Empty path requested, serving index file.")
       res.file(`${cfg.staticFilesDirectory}/index.gmi`);
+    } else {
+      log(`Serving file: ${req.path}`);
+      const subResult = await loadGmi(
+        cfg.staticFilesDirectory, req.path!
+      ).withSubstitutionRuleFile("subrule.json");
+      if (subResult.error) {
+        res.status(50);
+        res.data(`${cfg.serverErrorMessage ?? "Internal server error"}: ${subResult.reason}`)
+      } else {
+        res.data(subResult.text);
+        log(`File ${req.path} successfully served`);
+      }
     }
-    next();
   });
-
-  geminiServer.on("/", gemini.serveStatic(cfg.staticFilesDirectory));
 
   return {
     gemini: () => {

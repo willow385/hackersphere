@@ -31,19 +31,23 @@ type Success = {
 
 export type TemplateProcessingResult = ProcessingError | Success;
 
-export function loadGmi(directory: string, filePath: string) {
+export function loadGmi(staticFilesDir: string, filePath: string) {
   const filename = filePath.startsWith("/") ? filePath.slice(1) : filePath;
-  const gmiContentsPromise = fs.promises.readFile(`${directory}/${filename}`, "utf-8");
+  const pathParts = filename.split("/");
+  const directoryOfRequestedResource = `${staticFilesDir}/${pathParts.slice(0, -1).join("/")}`;
+  const gmiContentsPromise = fs.promises.readFile(`${staticFilesDir}/${filename}`, "utf-8");
   return {
     withSubstitutionRuleFile: (filePath: string | null): Promise<TemplateProcessingResult> => {
       return gmiContentsPromise.then((contents: string) => {
-        if (filePath === null || !fs.existsSync(`${directory}/${filePath}`)) {
+        if (filePath === null || !fs.existsSync(`${directoryOfRequestedResource}/${filePath}`)) {
+          console.log(`Substitution rule file ${directoryOfRequestedResource}/${filePath} does not exist.`);
           return {
             error: 0,
             text: contents
           };
         } else {
-          return fs.promises.readFile(`${directory}/${filePath}`, "utf-8")
+          console.log(`Applying substitution rule file ${directoryOfRequestedResource}/${filePath}.`);
+          return fs.promises.readFile(`${directoryOfRequestedResource}/${filePath}`, "utf-8")
             .then((subFileContents: string) => JSON.parse(subFileContents) as SubstitutionRule)
             .then((subRule: SubstitutionRule) => applyTemplateSubstitution(contents, subRule))
             .catch((error: Error) => ({
