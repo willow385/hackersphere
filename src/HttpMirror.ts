@@ -65,7 +65,7 @@ export default async function geminiHttpMirror(
         }
       }
     }
-    console.log(`~ Completed gemini request ${requestId} ~`);
+    console.log(`~ Completed https request ${requestId} ~`);
   }
 
   const httpsServer = https.createServer(tlsDetails, handleRequest);
