@@ -7,23 +7,35 @@
 └─┴─┴─┘
 ```
 
-## A capsule made by willowf
+## Executing silly protocol... Initializing fun subroutines... Disencrypting the good time matrix
+Welcome to our Gemini capsule! We hope you'll have a nice time, and stay silly :3
 
-I'm willowf, and I built this server because I wanted to have a Gemini capsule of my own.
-
-You can also view this capsule in a web browser via the HTTPS mirror that I wrote:
+You can also view this capsule on the Web via our live HTTPS mirror:
 
 => https://hackersphere.space/
 
-Here's some links to other capsules that I like reading:
+## In the Hackersphere, nobody knows that I am cringe
+Some of us in the Hackersphere are known to uwu, nyaa~, and sometimes even :3. We are not accepting criticism for these tendencies at this or any future time. Individuals and plural systems of all genders and sexualities are respected on this capsule.
 
-=> gemini://gemini.circumlunar.space/capcom/ A gemlog aggregator
-=> gemini://geminiquickst.art/
-=> gemini://sdf.org/
-=> gemini://gemini.conman.org/
-=> gemini://mozz.us/
-=> gemini://zaibatsu.circumlunar.space/
-=> gemini://heavysquare.com/
+## but what other capsules are out there? like, what is there to do?
+Here's some links to other capsules for newcomers to break into Gemspace:
 
-Check out our readme:
+=> gemini://gemini.circumlunar.space/capcom/ A gemlog aggregator linking to lots of other capsules
+=> gemini://geminiquickst.art/ An approachable introduction to Gemini for new users
+=> gemini://sdf.org/ A capsule with a bunch of people's gemlogs on it
+=> gemini://gemini.conman.org/ The first Gemini server ever
+=> gemini://mozz.us/ The fifth Gemini server ever
+=> gemini://zaibatsu.circumlunar.space/~solderpunk/ Personal subcapsule of solderpunk, who created Gemini
+=> gemini://heavysquare.com/ There's some posts on here about Unix and other techy stuff
+
+## I want to know more about the software that runs this capsule
+Check out our readme (there's not much there right now):
 => /README.gmi
+
+## Where can I see people's content on here?
+View the subcapsules of our users:
+=> /~willowf/home.gmi
+=> /~offbeatspecter/yo-is-this-thing-on.gmi
+
+## I want my own capsule on hackersphere.space
+=> /~willowf/home.gmi The admin's contact details can be obtained through here

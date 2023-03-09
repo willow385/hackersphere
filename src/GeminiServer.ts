@@ -43,7 +43,7 @@ export default async function createGeminiServer(
         res.status(50);
         res.data(`${cfg.serverErrorMessage ?? "Internal server error"}: ${subResult.reason}`)
       } else {
-        res.data(subResult.text);
+        res.data(subResult.text, "text/gemini");
         log(`File ${req.path} successfully served`);
       }
     }
