@@ -5,7 +5,7 @@ You are viewing the official README for the Hackersphere Capsule Engine, or HCE 
 # How do I install the Hackersphere Capsule Engine?
 ## Requirements
 ### System requirements
-The HCE was written on GNU/Linux for a virtual machine that has 1 x86-64 CPU core, 2GB RAM, and 25GB SSD. Honestly, you could probably get away with less than that. The same installation procedures can be followed for any Unix-like OS that uses systemd.
+The HCE was written on GNU/Linux for a virtual machine that has 1 x86-64 CPU core, 2GB RAM, and 25GB SSD. Honestly, you could probably get away with less than that. The same installation procedures can probably be followed for any Unix-like OS that uses systemd.
 
 ### Software requirements
 There aren't many. Basically, you just need to be able to run npm and NodeJS. The package.json file doesn't have many dependencies in it and can be read on the Web here:
