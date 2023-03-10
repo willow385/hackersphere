@@ -1,7 +1,6 @@
 import geminiHttpMirror from "./HttpMirror";
 import createGeminiServer from "./GeminiServer";
-import { loadTlsDetails } from "./TlsCertificates";
-import { loadServerConfiguration, ServerConfiguration } from "./ServerCfg";
+import { loadServerConfiguration } from "./ServerCfg";
 
 async function main() {
   const serverCfg = await loadServerConfiguration("cfg/server.json");

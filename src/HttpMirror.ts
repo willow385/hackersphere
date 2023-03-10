@@ -143,6 +143,7 @@ function convertGmiToHtml(
   ${mirrorNotice}\n`;
   let codeMode = false;
   let listMode = false;
+  let i = 0;
   for (const line of lines) {
     if (line.startsWith("```")) {
       codeMode = !codeMode;
@@ -170,8 +171,6 @@ function convertGmiToHtml(
         const uri = linkParts[1];
         const labelParts = linkParts.slice(2);
         const label = labelParts.length > 0 ? labelParts.join(" ") : uri;
-        console.log("Rewriting link as HTML anchor tag: " + uri);
-        console.log("with label: " + label);
         result += `<a href="${uri}">${escape(label)}</a><br>\n`;
       } catch {
         return {
@@ -188,7 +187,10 @@ function convertGmiToHtml(
       result += `<li>${escape(line)}</li>\n`;
     } else if (line.startsWith("#")) {
       const level = line.split(' ')[0].length;
-      result += `<h${level}>${escape(line)}</h${level}>\n`;
+      result += `<h${level} id="section-${i}">${
+        escape(line)
+      } <a href="#section-${i}">#</a></h${level}>\n`;
+      i++;
     } else {
       result += `<p>${escape(line)}</p>\n`;
     }
