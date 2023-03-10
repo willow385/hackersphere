@@ -1,5 +1,7 @@
 dist/
 package-lock.json
 node_modules/
-gemini-static/
+gemini-static/*
+!gemini-static/index.gmi
+!gemini-static/README.gmi
 .build/
