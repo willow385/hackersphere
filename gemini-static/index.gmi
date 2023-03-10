@@ -39,4 +39,4 @@ View the subcapsules of our users:
 => /~toucan/index.gmi
 
 ## I want my own subcapsule on hackersphere.space!
-=> /~willowf/contact.gmi The admin's contact details can be obtained through here
+=> /~willowf/home.gmi There's a link to the admin's contact info here

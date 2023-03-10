@@ -186,7 +186,9 @@ function convertGmiToHtml(
       }
       result += `<li>${escape(line)}</li>\n`;
     } else if (line.startsWith("#")) {
-      const level = line.split(' ')[0].length;
+      const countOctothorpes = (str: string): number =>
+        (str.match(/^#+/) || [''])[0].length;
+      const level = countOctothorpes(line);
       result += `<h${level} id="section-${i}">${
         escape(line)
       } <a href="#section-${i}">#</a></h${level}>\n`;
