@@ -170,7 +170,9 @@ function convertGmiToHtml(
       try {
         const uri = linkParts[1];
         const labelParts = linkParts.slice(2);
-        const label = labelParts.length > 0 ? labelParts.join(" ") : uri;
+        const labelPartsJoined = labelParts.join(" ");
+        const label = labelParts.length > 0 && /\S/.test(labelPartsJoined) ?
+          labelPartsJoined : uri;
         result += `<a href="${uri}">${escape(label)}</a><br>\n`;
       } catch {
         return {
