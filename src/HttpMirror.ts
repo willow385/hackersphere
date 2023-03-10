@@ -32,38 +32,46 @@ export default async function geminiHttpMirror(
     console.log(`~ Handling https request ${requestId} ~`);
     console.log(`${requestId}: requested url: ${req.url}`);
     const resource = (req?.url === "/" ? "/index.gmi" : req.url) ?? "/index.gmi";
-    if (resource.includes("..") || !resource.endsWith(".gmi")) {
-      const message = applyTemplateSubstitution(`403: ${cfg.forbiddenPageMessage ?? "Forbidden"}`, {
-        "@@PAGE-URI@@": resource
-      });
-      if (message.error) {
-        res.writeHead(500);
-        res.end(`${cfg.serverErrorMessage ?? "500 Internal server error"}: ${message.reason}`);
+    const internalServerError = (res: ServerResponse, message: string) => {
+      res.writeHead(500);
+      res.end(`${cfg.serverErrorMessage ?? "Internal server error"}: ${message}`);
+    };
+    try {
+      if (resource.includes("..") || !resource.endsWith(".gmi")) {
+        const message = applyTemplateSubstitution(`403: ${cfg.forbiddenPageMessage ?? "Forbidden"}`, {
+          "@@PAGE-URI@@": resource
+        });
+        if (message.error) {
+          res.writeHead(500);
+          res.end(`${cfg.serverErrorMessage ?? "500 Internal server error"}: ${message.reason}`);
+        } else {
+          res.writeHead(403);
+          res.end(message.text);
+        }
       } else {
-        res.writeHead(403);
-        res.end(message.text);
-      }
-    } else {
-      const substitutionResult = await loadGmi(
-        cfg.staticFilesDirectory, resource
-      ).withSubstitutionRuleFile("subrule.json");
-      if (substitutionResult.error) {
-        res.writeHead(500);
-        res.end(
-          `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${substitutionResult.reason}`
-        );
-      } else {
-        const html = convertGmiToHtml(substitutionResult.text, resource, cfg);
-        if (html.error) {
+        const substitutionResult = await loadGmi(
+          cfg.staticFilesDirectory, resource
+        ).withSubstitutionRuleFile("subrule.json");
+        if (substitutionResult.error) {
           res.writeHead(500);
           res.end(
-            `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${html.reason}`
+            `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${substitutionResult.reason}`
           );
         } else {
-          res.writeHead(200);
-          res.end(html.htmlText);
+          const html = convertGmiToHtml(substitutionResult.text, resource, cfg);
+          if (html.error) {
+            res.writeHead(500);
+            res.end(
+              `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${html.reason}`
+            );
+          } else {
+            res.writeHead(200);
+            res.end(html.htmlText);
+          }
         }
       }
+    } catch (error) {
+      internalServerError(res, error?.message ?? "Unknown error");
     }
     console.log(`~ Completed https request ${requestId} ~`);
   }
@@ -93,10 +101,12 @@ function convertGmiToHtml(
       .replaceAll(">", "&gt;")
       .replaceAll("* ", "")
       .replaceAll("#", "");
+  const escapeAngleBracketsOnly = (s: string) =>
+    s.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   const mirrorNoticePath = "/home/willowf/hackersphere/src/mirror-notice.html";
   const mirrorNotice = fs.readFileSync(mirrorNoticePath, "utf-8")
     .replaceAll(
-      "@@REQUESTED_URL@@",
+      "@@REQUESTED-URL@@",
       `${cfg.baseUri}${requestedResource}`
     );
   let result = `<!DOCTYPE html>
@@ -110,7 +120,19 @@ function convertGmiToHtml(
   }`)}</title>
   <style>
     body {
-      font-family: monospace;
+      font-family: sans-serif;
+    }
+    figure {
+      border: 1px solid black;
+      width: fit-content;
+    }
+    figcaption {
+      border: 8px solid #4a4a4a;
+      background-color:#4a4a4a;
+      color:#eeeeee;
+    }
+    pre {
+      border: 8px solid white;
     }
     a {
       color: #4979F2;
@@ -125,15 +147,17 @@ function convertGmiToHtml(
     if (line.startsWith("```")) {
       codeMode = !codeMode;
       if (codeMode) {
-        result += "<pre>\n";
+        result += "<figure>\n"
+          + `<figcaption>${line.slice(3)}</figcaption>\n`
+          + "<pre>\n";
         continue;
       } else {
-        result += "</pre>\n";
+        result += "</pre>\n</figure>\n";
         continue;
       }
     }
     if (codeMode) {
-      result += line + "\n";
+      result += escapeAngleBracketsOnly(line) + "\n";
       continue;
     }
     if (listMode && !line.startsWith("* ")) {

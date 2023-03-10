@@ -22,6 +22,10 @@ export default async function createGeminiServer(
   /** requestId is updated once per request. Before any requests have been processed, it is "default". */
   let requestId = "default";
   const log = (message: string) => console.log(`request ${requestId}: ${message}`);
+  const internalServerError = (res: Response, message: string) => {
+    res.status(50);
+    res.data(`${cfg.serverErrorMessage ?? "Internal server error"}: ${message}`);
+  };
 
   geminiServer.use((_req: Request, _res: Response, next: NextFunction) => {
     requestId = generateRequestId();
@@ -36,15 +40,19 @@ export default async function createGeminiServer(
       res.file(`${cfg.staticFilesDirectory}/index.gmi`);
     } else {
       log(`Serving file: ${req.path}`);
-      const subResult = await loadGmi(
-        cfg.staticFilesDirectory, req.path!
-      ).withSubstitutionRuleFile("subrule.json");
-      if (subResult.error) {
-        res.status(50);
-        res.data(`${cfg.serverErrorMessage ?? "Internal server error"}: ${subResult.reason}`)
-      } else {
-        res.data(subResult.text, "text/gemini");
-        log(`File ${req.path} successfully served`);
+      try {
+        const subResult = await loadGmi(
+          cfg.staticFilesDirectory, req.path!
+        ).withSubstitutionRuleFile("subrule.json");
+        if (subResult.error) {
+          internalServerError(res, subResult.reason);
+        } else {
+          const mimeType = req.path?.endsWith(".gmi") ? "text/gemini" : "text/plain";
+          res.data(subResult.text, mimeType);
+          log(`File ${req.path} successfully served`);
+        }
+      } catch (error) {
+        internalServerError(res, error?.message ?? "Unknown error");
       }
     }
     console.log(`~ Completed gemini request ${requestId} ~`);

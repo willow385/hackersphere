@@ -35,6 +35,7 @@ Check out our readme:
 View the subcapsules of our users:
 => /~willowf/home.gmi
 => /~offbeatspecter/yo-is-this-thing-on.gmi
+=> /~admiralmoses/hello-world.gmi
 
 ## I want my own subcapsule on hackersphere.space!
 => /~willowf/contact.gmi The admin's contact details can be obtained through here

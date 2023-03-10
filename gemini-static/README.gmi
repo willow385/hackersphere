@@ -104,5 +104,5 @@ The HCE is programmed to shut down gracefully when it receives SIGTERM, SIGINT, 
 * server.json - Configuration file for the HCE.
 
 ### gemini-static/
-* index.gmi - The capsule's idex file.
+* index.gmi - The capsule's index file.
 * README.gmi - This file.
