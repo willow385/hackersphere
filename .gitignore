@@ -1,6 +1,5 @@
 dist/
 package-lock.json
-cert.pem
-key.pem
 node_modules/
 gemini-static/
+.build/
