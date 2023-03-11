@@ -21,11 +21,12 @@ Here's some links to other capsules for newcomers to break into Gemspace:
 
 => gemini://gemini.circumlunar.space/capcom/ A gemlog aggregator linking to lots of other capsules
 => gemini://geminiquickst.art/ An approachable introduction to Gemini for new users
-=> gemini://sdf.org/ A capsule with a bunch of people's gemlogs on it
+=> gemini://sdf.org/ A famous public access Unix server that's been online for ages
 => gemini://gemini.conman.org/ The first Gemini server ever
 => gemini://mozz.us/ The fifth Gemini server ever
 => gemini://zaibatsu.circumlunar.space/~solderpunk/ Personal subcapsule of solderpunk, who created Gemini
 => gemini://heavysquare.com/ There's some posts on here about Unix and other techy stuff
+=> gemini://geddit.glv.one/ An anonymous message board
 
 ## I want to know more about the software that runs this capsule
 Check out our readme:
@@ -35,8 +36,9 @@ Check out our readme:
 View the subcapsules of our users:
 => /~willowf/home.gmi
 => /~offbeatspecter/yo-is-this-thing-on.gmi
-=> /~admiralmoses/hello-world.gmi
+=> /~admiralmoses/index.gmi
 => /~toucan/index.gmi
+=> /~clone-brother/index.gmi
 
 ## I want my own subcapsule on hackersphere.space!
 => /~willowf/home.gmi There's a link to the admin's contact info here

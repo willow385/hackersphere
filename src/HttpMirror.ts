@@ -58,15 +58,22 @@ export default async function geminiHttpMirror(
             `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${substitutionResult.reason}`
           );
         } else {
-          const html = convertGmiToHtml(substitutionResult.text, resource, cfg);
-          if (html.error) {
-            res.writeHead(500);
-            res.end(
-              `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${html.reason}`
-            );
+          if (resource.endsWith(".gmi")) {
+            const html = convertGmiToHtml(substitutionResult.text, resource, cfg);
+            if (html.error) {
+              res.writeHead(500);
+              res.end(
+                `${cfg.serverErrorMessage ?? "500 Internal server error"}: ${html.reason}`
+              );
+            } else {
+              res.writeHead(200);
+              res.end(html.htmlText);
+            }
           } else {
-            res.writeHead(200);
-            res.end(html.htmlText);
+            res.writeHead(200, {
+              "content-Type": "text/plain"
+            });
+            res.end(substitutionResult.text);
           }
         }
       }
@@ -98,9 +105,7 @@ function convertGmiToHtml(
   const escape = (s: string) =>
     s.replaceAll("&", "&amp;")
       .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll("* ", "")
-      .replaceAll("#", "");
+      .replaceAll(">", "&gt;");
   const escapeAngleBracketsOnly = (s: string) =>
     s.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
   const mirrorNoticePath = "/home/willowf/hackersphere/src/mirror-notice.html";
@@ -113,11 +118,10 @@ function convertGmiToHtml(
   <html lang="en">
   <head>
   <meta charset="utf-8">
-  <title>${escape(`${
-    requestedResource.startsWith("/~") ?
+  <title>${escape(`${requestedResource.startsWith("/~") ?
       requestedResource.slice(1)
       : `~${requestedResource}`
-  }`)}</title>
+    }`)}</title>
   <style>
     body {
       font-family: sans-serif;
@@ -186,13 +190,17 @@ function convertGmiToHtml(
         result += "<ul>\n";
         listMode = true;
       }
-      result += `<li>${escape(line)}</li>\n`;
+      result += `<li>${escape(line).slice(2)}</li>\n`;
     } else if (line.startsWith("#")) {
       const countOctothorpes = (str: string): number =>
         (str.match(/^#+/) || [''])[0].length;
       const level = countOctothorpes(line);
+      let prettifiedLine = `${line}`;
+      while (prettifiedLine.startsWith("#") || prettifiedLine.startsWith(" ")) {
+        prettifiedLine = prettifiedLine.slice(1);
+      }
       result += `<h${level} id="section-${i}">${
-        escape(line)
+        escape(prettifiedLine)
       } <a href="#section-${i}">#</a></h${level}>\n`;
       i++;
     } else {
