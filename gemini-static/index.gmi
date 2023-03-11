@@ -42,3 +42,7 @@ View the subcapsules of our users:
 
 ## I want my own subcapsule on hackersphere.space!
 => /~willowf/home.gmi There's a link to the admin's contact info here
+
+## I want to read about current events via Gemini!
+=> /news/index.gmi Read our news feed here
+=> /news/atom.xml Or find our atom.xml here

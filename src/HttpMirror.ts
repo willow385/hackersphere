@@ -37,7 +37,7 @@ export default async function geminiHttpMirror(
       res.end(`${cfg.serverErrorMessage ?? "Internal server error"}: ${message}`);
     };
     try {
-      if (resource.includes("..") || !resource.endsWith(".gmi")) {
+      if (resource.includes("..") || (!resource.endsWith(".gmi") && !resource.endsWith(".png"))) {
         const message = applyTemplateSubstitution(`403: ${cfg.forbiddenPageMessage ?? "Forbidden"}`, {
           "@@PAGE-URI@@": resource
         });
@@ -69,6 +69,12 @@ export default async function geminiHttpMirror(
               res.writeHead(200);
               res.end(html.htmlText);
             }
+          } else if (resource.endsWith(".png")) {
+            res.writeHead(200, {
+              "Content-Type": "image/png"
+            });
+            fs.promises.readFile(`${cfg.staticFilesDirectory}${resource}`)
+              .then((buffer: Buffer) => res.end(buffer));
           } else {
             res.writeHead(200, {
               "content-Type": "text/plain"

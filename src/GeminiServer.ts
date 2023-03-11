@@ -1,3 +1,4 @@
+import fs from "fs";
 import gemini, {
   Request,
   Response,
@@ -47,8 +48,15 @@ export default async function createGeminiServer(
         if (subResult.error) {
           internalServerError(res, subResult.reason);
         } else {
-          const mimeType = req.path?.endsWith(".gmi") ? "text/gemini" : "text/plain";
-          res.data(subResult.text, mimeType);
+          const mimeType =
+            req.path === "atom.xml" ? "text/gemini"
+            : req.path?.endsWith(".gmi") ? "text/gemini"
+            : req.path?.endsWith(".png") ? "image/png"
+            : "text/plain";
+          const data = mimeType === "image/png" ?
+            await fs.promises.readFile(`${cfg.staticFilesDirectory}${req.path}`)
+            : subResult.text;
+          res.data(data, mimeType);
           log(`File ${req.path} successfully served`);
         }
       } catch (error) {
